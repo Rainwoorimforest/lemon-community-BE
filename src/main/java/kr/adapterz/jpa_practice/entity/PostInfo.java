@@ -9,7 +9,7 @@ import lombok.Setter;
 public class PostInfo {
 
     @Id
-    @OneToOne(fetch = FetchType.LAZY) // 애초에 PostInfo의 식별자키가 따로 없고 외래키 post_id로써 식별자를 사용하는데 이 식별자 생성전략을 지정해줄 필요가 있나?
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
@@ -35,9 +35,7 @@ public class PostInfo {
 
 
     public void increaseCommentCount() {
-        if(this.commentCount > 0) {
-            commentCount++;
-        }
+        commentCount++;
     }
 
     public void decreaseCommentCount() {
@@ -47,9 +45,7 @@ public class PostInfo {
     }
 
     public void increaseLikeCount() {
-        if(this.likeCount > 0) {
-            likeCount ++;
-        }
+        likeCount ++;
     }
 
     public void decreaseLikeCount() {
