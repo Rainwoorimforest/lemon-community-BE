@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>STOMP Test (ChatRoom)</title>
+    <!-- SockJS & STOMP 라이브러리 CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+    <h2>STOMP ChatRoom Connection Test</h2>
+    
+    <div style="margin-bottom: 15px; border: 1px solid #ddd; padding: 10px; background-color: #f0f4f8;">
+        <label><b>1단계: </b></label>
+        <button onclick="connect()">Connect (서버 연결)</button>
+    </div>
+
+    <div style="margin-bottom: 15px; border: 1px solid #ddd; padding: 10px; background-color: #f0f4f8;">
+        <label for="roomId"><b>2단계 (채팅방 ID 입력): </b></label>
+        <input type="number" id="roomId" value="1" style="width: 50px;" />
+        <button onclick="subscribe()">Subscribe (채팅방 구독)</button>
+    </div>
+
+    <div style="margin-bottom: 15px; border: 1px solid #ddd; padding: 10px; background-color: #f0f4f8;">
+        <label><b>3단계 (메시지 전송): </b></label>
+        <input type="text" id="sender" value="레이첼" style="width: 80px;" placeholder="보낸이" />
+        <input type="text" id="message" value="안녕하세요" style="width: 200px;" placeholder="메시지 내용" />
+        <button onclick="sendMessage()">Send Message (전송)</button>
+    </div>
+
+    <div style="margin-bottom: 10px;">
+        <button onclick="disconnect()">Disconnect (연결 종료)</button>
+    </div>
+    
+    <div id="log" style="white-space: pre-line; border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; background-color: #f9f9f9; font-family: monospace;"></div>
+
+    <script>
+        let stompClient = null;
+        let subscription = null;
+
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML += message + '\n';
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function connect() {
+            log('Connecting to ws://localhost:8080/ws ...');
+            
+            const socket = new WebSocket('ws://localhost:8080/ws');
+            stompClient = Stomp.over(socket);
+            
+            stompClient.connect({}, function (frame) {
+                log('🎉 Connected Success! (연결 성공): ' + frame);
+            }, function (error) {
+                log('❌ Connection Failed! (연결 실패): ' + error);
+            });
+        }
+
+        function subscribe() {
+            if (!stompClient || !stompClient.connected) {
+                log('⚠️ Not connected! 먼저 Connect 버튼을 눌러 연결해 주세요.');
+                return;
+            }
+            
+            const roomId = document.getElementById('roomId').value;
+            if (!roomId) {
+                log('⚠️ 채팅방 ID를 입력해주세요.');
+                return;
+            }
+
+            // 기존 구독이 있다면 해제
+            if (subscription) {
+                subscription.unsubscribe();
+                log('🧹 이전 구독 해제 완료');
+            }
+
+            const destination = '/subscribe/chat.' + roomId;
+            subscription = stompClient.subscribe(destination, function (messageOutput) {
+                log('📨 [Received Message] 수신 완료: ' + messageOutput.body);
+            });
+            log('🔔 Subscribed to ' + destination + ' (채팅방 구독 완료)');
+        }
+
+        function sendMessage() {
+            if (!stompClient || !stompClient.connected) {
+                log('⚠️ Not connected! 먼저 Connect 버튼을 눌러 연결해 주세요.');
+                return;
+            }
+            
+            const roomId = document.getElementById('roomId').value;
+            const sender = document.getElementById('sender').value;
+            const messageText = document.getElementById('message').value;
+
+            if (!roomId || !sender || !messageText) {
+                log('⚠️ 채팅방 ID, 보낸이, 메시지 내용을 입력해주세요.');
+                return;
+            }
+
+            const message = JSON.stringify({
+                'sender': sender,
+                'message': messageText
+            });
+            
+            const destination = "/publish/chat." + roomId;
+            stompClient.send(destination, {}, message);
+            log('📤 [Sent Message] 송신 완료: ' + destination + ' -> ' + message);
+        }
+
+        function disconnect() {
+            if (stompClient !== null) {
+                stompClient.disconnect();
+            }
+            log("🔌 Disconnected (연결 종료 완료)");
+        }
+    </script>
+</body>
+</html>

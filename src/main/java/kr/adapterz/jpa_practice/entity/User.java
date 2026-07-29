@@ -35,13 +35,14 @@ public class User {
     private String profileImage;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "user_role", nullable = false, length = 20)
     private UserRole userRole;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "author", fetch = FetchType.LAZY) // defalut가 LAZY이지만 명시해준다.
-    private List<Post> posts = new ArrayList<>(); // ERD 설계할때 user 테이블에 post 이런거 넣은 적 없는데...
+    private List<Post> posts = new ArrayList<>();
 
     @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
     private List<Comment> comments = new ArrayList<>();

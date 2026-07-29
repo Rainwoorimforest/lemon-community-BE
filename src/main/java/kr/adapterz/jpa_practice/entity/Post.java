@@ -46,9 +46,8 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<PostImage> postImages = new ArrayList<>();
 
-    // TODO: 동기화 시점-서비스계층
     @Column(nullable = false, length = 10)
-    private String nickname; // User랑 똑같은 @Column 적용해줘야하나요?
+    private String nickname;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -56,6 +55,7 @@ public class Post {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    // TODO: soft delete 구현
 //    @Column(name = "deleted_at")
 //    private LocalDateTime deletedAt;
 
