@@ -47,3 +47,4 @@ application-prod.properties
 *.jks
 *.keystore
 *credentials*
+docker-compose.yml
