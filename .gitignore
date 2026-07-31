@@ -1,37 +1,49 @@
 HELP.md
-.gradle
+.gradle/
 build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
-
-### IntelliJ IDEA ###
-.idea
+# IDE settings
+.idea/
 *.iws
 *.iml
 *.ipr
 out/
-!**/src/main/**/out/
-!**/src/test/**/out/
+.vscode/
 
-### NetBeans ###
+# STS / Eclipse
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+bin/
+
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
-.vscode/
+# Database files
+*.db
+*.mv.db
+*.trace.db
+/h2db/
+
+# Environmental variables / Secrets
+.env
+.env.*
+application-local.properties
+application-dev.properties
+application-prod.properties
+
+# Security / Keys
+*.pem
+*.key
+*.pub
+*.jks
+*.keystore
+*credentials*
