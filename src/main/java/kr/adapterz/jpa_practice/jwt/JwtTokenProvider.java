@@ -73,9 +73,9 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String token) {
         String email = getEmail(token);
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email); // 이미 DB를 조회하여 유저 정보를 다 들고 있는 UserDetails 객체를 가져옵
 
-        return new UsernamePasswordAuthenticationToken(
+        return new UsernamePasswordAuthenticationToken( // 여기에 유저 정보(userDetails)가 통째로 할당
                 userDetails,
                 "",
                 userDetails.getAuthorities());

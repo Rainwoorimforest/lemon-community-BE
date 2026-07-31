@@ -46,15 +46,6 @@ public class JwtFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-//    private String resolveToken(HttpServletRequest request) {
-//        String bearerToken = request.getHeader("Authorization");
-//        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-//            System.out.println("넘겨주는 토큰: " + bearerToken.substring(7));
-//            return bearerToken.substring(7);
-//        }
-//        return null;
-//    }
-//}
 
     private String resolveToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();

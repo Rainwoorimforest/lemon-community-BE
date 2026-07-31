@@ -41,15 +41,10 @@ public class SecurityConfig {
                 )
 
                 // 권한 설정
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-//                        .requestMatchers("/users/signup", "/users/login", "/error").permitAll()
-//                        .anyRequest().authenticated()
-//                )
-
-                // TODO: 웹소켓 연결이후 지우기
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/users/signup", "/users/login", "/error", "/ws/**").permitAll()
+                        .anyRequest().authenticated()
                 )
 
                 // 필터 추가

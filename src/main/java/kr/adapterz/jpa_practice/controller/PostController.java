@@ -37,9 +37,10 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public ResponseEntity<ApiResponse<PostResponseDto>> getPost (
-            @PathVariable Long postId
+            @PathVariable Long postId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        PostResponseDto result = postService.getPost(postId);
+        PostResponseDto result = postService.getPost(postId, userDetails.getUserId());
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .header("Location", "/users" + result.getPostId())

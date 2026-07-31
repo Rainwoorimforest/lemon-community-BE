@@ -26,7 +26,7 @@ public class PostInfo {
 
     public PostInfo(Post post) {
         this.post = post;
-
+        this.viewCount = 0;
         this.commentCount = post.getComments().size();
         this.likeCount = post.getLikes().size();
 
@@ -53,4 +53,7 @@ public class PostInfo {
             likeCount --;
         }
     }
+
+    public void increaseViewCount() { viewCount++; }
+
 }

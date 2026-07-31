@@ -1,5 +1,7 @@
 package kr.adapterz.jpa_practice.config;
 
+import kr.adapterz.jpa_practice.jwt.JwtTokenProvider;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -10,17 +12,24 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j // 채팅 로그를 위한 어노테이션
+@RequiredArgsConstructor
 public class WebSocketInterceptor implements ChannelInterceptor {
+
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message); //TODO: 여기에 command 별로 로직을 작성(노션)
         StompCommand command = accessor.getCommand();
+
         if(command == StompCommand.SUBSCRIBE) {
             log.info(accessor.getDestination());
+
+            // 처음 소켓 연결 CONNECT 요청일 때, 최초로 토큰 검증할 필요없음 -> 쿠키에 jwt검증방식이라
         }
 
         return message;
     }
+
+
 
 }

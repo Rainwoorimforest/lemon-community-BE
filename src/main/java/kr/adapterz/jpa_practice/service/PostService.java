@@ -5,17 +5,16 @@ import kr.adapterz.jpa_practice.dto.post.*;
 import kr.adapterz.jpa_practice.dto.user.UserResponseDto;
 import kr.adapterz.jpa_practice.entity.*;
 import kr.adapterz.jpa_practice.exception.*;
-import kr.adapterz.jpa_practice.repository.CommentRepository;
-import kr.adapterz.jpa_practice.repository.LikeRepository;
-import kr.adapterz.jpa_practice.repository.PostRepository;
-import kr.adapterz.jpa_practice.repository.UserRepository;
+import kr.adapterz.jpa_practice.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +26,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final LikeRepository likeRepository;
+    private final PostViewHistoryRepository postViewHistoryRepository;
 
     @Transactional
     public PostResponseDto createPost(Long userId, PostRequestDto request) {
@@ -55,9 +55,50 @@ public class PostService {
         return new PostResponseDto(savedPost);
     }
 
-    public PostResponseDto getPost(Long postId) {
+    @Transactional
+    public PostResponseDto getPost(Long postId, Long userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("POST_NOT_FOUND"));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
+
+        PostViewHistoryId historyId = new PostViewHistoryId(postId, userId);
+        Optional<PostViewHistory> historyOpt = postViewHistoryRepository.findById(historyId);
+
+        boolean shouldIncrease = false;
+
+        if (historyOpt.isEmpty()) { //
+            shouldIncrease = true;
+
+            PostViewHistory newHistory = new PostViewHistory(user, post);
+            postViewHistoryRepository.save(newHistory);
+        }
+        else {
+            PostViewHistory history = historyOpt.get(); //
+
+            // 조회수 로직 - 3시간이 지났는지 체크
+            if(history.getLastViewedAt().isBefore(LocalDateTime.now().minusHours(3)))
+            {
+                shouldIncrease = true;
+                history.updateLastViewedAt();
+            }
+
+        }
+
+        if (shouldIncrease)
+        {
+            postViewHistoryRepository.flush(); // 메모리가 clear 되기 전에 조회기록 반영
+
+            postRepository.increaseViewCount(postId);
+            // post.getPostInfo().increaseViewCount(); // 불필요한 코드. 넣으면 중복으로 올라간다. 위의 코드가 PostInfo를 UPDATE
+
+            // 중요: increaseViewCount(Atomic Update)를 호출하면
+            // clearAutomatically = true 에 의해 영속성 컨텍스트가 비워집니다.
+            // 수정된 최신 DB 상태(업데이트된 조회수)를 DTO에 반영하기 위해 다시 조회해옵니다.
+            post = postRepository.findById(postId)
+                    .orElseThrow(() -> new NotFoundException("POST_NOT_FOUND"));
+        }
 
         post.checkAndUpdateNickname();
 
@@ -72,11 +113,6 @@ public class PostService {
         return posts.stream()
                 .peek(post -> {
                     post.checkAndUpdateNickname();
-//                    System.out.println("postInfo 값: " + post.getPostInfo());
-//                    if(post.getPostInfo() == null) {
-//                        PostInfo info = new PostInfo(post);
-//                        post.LinkPostInfo(info);
-//                    }
                 })
                 .map(post -> new AllPostsResponseDto(post))
                 .collect(Collectors.toList());
