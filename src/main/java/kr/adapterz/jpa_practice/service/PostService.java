@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import kr.adapterz.jpa_practice.security.CustomUserDetails;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -63,19 +64,22 @@ public class PostService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
 
+        // 채팅방 여부
+
+
+        // 조회수
         PostViewHistoryId historyId = new PostViewHistoryId(postId, userId);
         Optional<PostViewHistory> historyOpt = postViewHistoryRepository.findById(historyId);
-
         boolean shouldIncrease = false;
 
-        if (historyOpt.isEmpty()) { //
+        if (historyOpt.isEmpty()) {
             shouldIncrease = true;
 
             PostViewHistory newHistory = new PostViewHistory(user, post);
             postViewHistoryRepository.save(newHistory);
         }
         else {
-            PostViewHistory history = historyOpt.get(); //
+            PostViewHistory history = historyOpt.get();
 
             // 조회수 로직 - 3시간이 지났는지 체크
             if(history.getLastViewedAt().isBefore(LocalDateTime.now().minusHours(3)))
@@ -99,6 +103,9 @@ public class PostService {
             post = postRepository.findById(postId)
                     .orElseThrow(() -> new NotFoundException("POST_NOT_FOUND"));
         }
+
+
+
 
         post.checkAndUpdateNickname();
 

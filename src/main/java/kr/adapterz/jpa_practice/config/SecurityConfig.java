@@ -43,7 +43,7 @@ public class SecurityConfig {
                 // 권한 설정
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/users/signup", "/users/login", "/error", "/ws/**").permitAll()
+                        .requestMatchers("/users/signup", "/users/login", "/error", "/images/**").permitAll()
                         .anyRequest().authenticated()
                 )
 

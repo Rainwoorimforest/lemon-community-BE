@@ -5,7 +5,7 @@ import jakarta.validation.Valid;
 import kr.adapterz.jpa_practice.dto.user.*;
 import kr.adapterz.jpa_practice.dto.auth.TokenResponseDto;
 import kr.adapterz.jpa_practice.response.ApiResponse;
-import kr.adapterz.jpa_practice.service.CustomUserDetails;
+import kr.adapterz.jpa_practice.security.CustomUserDetails;
 import kr.adapterz.jpa_practice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -53,7 +53,7 @@ public class UserController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .header("Location", "/users/signup" + result.getUserId())
-                .body(ApiResponse.of("USER_CREATED",result, null));
+                .body(ApiResponse.of("USER_CREATED",result));
     }
 
     @PostMapping("/login")
@@ -80,7 +80,7 @@ public class UserController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(ApiResponse.of("LOGIN_SUCCESS", tokenResult.getUserInfo(), null));
+                .body(ApiResponse.of("LOGIN_SUCCESS", tokenResult.getUserInfo()));
     }
 
     @PatchMapping("/{userId}")
@@ -93,7 +93,7 @@ public class UserController {
         UserUpdateResponseDto result = userService.updateUserInfo(userId, userDetails, request);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.of("NICKNAME_IMAGE_UPDATED", result,null));
+                .body(ApiResponse.of("NICKNAME_IMAGE_UPDATED", result));
     }
 
     @PutMapping("/{userId}/password")

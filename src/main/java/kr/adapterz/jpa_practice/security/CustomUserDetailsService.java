@@ -1,14 +1,12 @@
-package kr.adapterz.jpa_practice.service;
+package kr.adapterz.jpa_practice.security;
 
 import kr.adapterz.jpa_practice.entity.User;
-import kr.adapterz.jpa_practice.service.CustomUserDetails;
 import kr.adapterz.jpa_practice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +22,4 @@ public class CustomUserDetailsService implements UserDetailsService {
         // Spring Security의 UserDetails 객체로 변환
         return new CustomUserDetails(user);
     }
-
-
 }

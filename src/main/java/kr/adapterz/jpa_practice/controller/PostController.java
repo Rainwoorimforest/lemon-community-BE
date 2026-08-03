@@ -8,7 +8,7 @@ import kr.adapterz.jpa_practice.dto.post.PostUpdateResponseDto;
 import kr.adapterz.jpa_practice.dto.post.PostDeleteRequestDto;
 import kr.adapterz.jpa_practice.response.ApiResponse;
 import kr.adapterz.jpa_practice.service.PostService;
-import kr.adapterz.jpa_practice.service.CustomUserDetails;
+import kr.adapterz.jpa_practice.security.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import kr.adapterz.jpa_practice.exception.AccessDeniedException;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,7 @@ public class PostController {
         List<AllPostsResponseDto> result = postService.getAllPost(pageable);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.of("POSTS_RETRIEVED",result, null));
+                .body(ApiResponse.of("POSTS_RETRIEVED", result));
     }
 
     @GetMapping("/{postId}")
@@ -43,22 +43,19 @@ public class PostController {
         PostResponseDto result = postService.getPost(postId, userDetails.getUserId());
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .header("Location", "/users" + result.getPostId())
-                .body(ApiResponse.of("POST_RETRIEVED",result, null));
+                .body(ApiResponse.of("POST_RETRIEVED", result));
     }
 
     @PostMapping("/users/{userId}")
     public ResponseEntity<ApiResponse<PostResponseDto>> createPost(
             @PathVariable Long userId,
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody PostRequestDto request
     ) {
-        if (!userDetails.getUserId().equals(userId)) {
-            throw new AccessDeniedException("USER_MISMATCH");
-        }
+
         PostResponseDto result = postService.createPost(userId, request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
+                .header("Location", "/posts/" + result.getPostId())
                 .body(ApiResponse.of("POST_CREATED", result));
     }
 

@@ -15,7 +15,4 @@ public class ChatMessageRequest {
     @NotBlank
     private String message;
 
-
-
-    // private Long roomId; // 이것도 Pathivarable로 받는다
 }

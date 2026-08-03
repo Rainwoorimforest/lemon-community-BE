@@ -30,7 +30,6 @@ public class PostResponseDto {
     private LocalDateTime createdAt;
 
 
-
     public PostResponseDto(Post post) {
         this.postId = post.getPostId();
         this.title = post.getTitle();

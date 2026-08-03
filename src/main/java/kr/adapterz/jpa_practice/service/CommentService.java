@@ -12,6 +12,7 @@ import kr.adapterz.jpa_practice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import kr.adapterz.jpa_practice.security.CustomUserDetails;
 
 import java.util.List;
 

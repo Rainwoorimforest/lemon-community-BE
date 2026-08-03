@@ -27,12 +27,10 @@ public class Comment {
     @Column(nullable = false, length = 10)
     private String nickname;
 
-    @ManyToOne(fetch = FetchType.LAZY) // nickname 때문에 User 엔티티를 불러오는거지만 comment_id로 이미 식별자를 가지고 있는데 굳이 user_id가 필요하긴할까? nickname을 그저 복사하기용으로 필요한거겠지?
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false) // DB FK 연결
     private User author;
 
-    // 내가 설계한 ERD에는 post에 대한 것을 안넣었다. commentId만으로도 post를 구별할 수 있다 생각해서
-    // 그 말은 즉, Comment 엔티티에 어떤 post인지는 생성자에 명시해줘야 한다는 얘기겠지요? 식별자가 복합키(post_id + comment_id)가 아니라 comment_id이고, 이렇게 하려면 어떤 Post인지는 생성자에 맞춰줘야죠?
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;

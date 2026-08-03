@@ -2,7 +2,7 @@ package kr.adapterz.jpa_practice.controller;
 
 import kr.adapterz.jpa_practice.dto.chat.ChatMessageRequest;
 import kr.adapterz.jpa_practice.dto.chat.ChatMessageResponse;
-import kr.adapterz.jpa_practice.service.CustomUserDetails;
+import kr.adapterz.jpa_practice.security.CustomUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.DestinationVariable;

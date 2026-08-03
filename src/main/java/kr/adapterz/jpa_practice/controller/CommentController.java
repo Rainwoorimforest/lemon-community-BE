@@ -5,7 +5,7 @@ import kr.adapterz.jpa_practice.dto.comment.*;
 import kr.adapterz.jpa_practice.response.ApiResponse;
 import kr.adapterz.jpa_practice.service.CommentService;
 import kr.adapterz.jpa_practice.service.UserService;
-import kr.adapterz.jpa_practice.service.CustomUserDetails;
+import kr.adapterz.jpa_practice.security.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import kr.adapterz.jpa_practice.exception.AccessDeniedException;
 import lombok.RequiredArgsConstructor;

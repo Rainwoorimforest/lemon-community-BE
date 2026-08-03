@@ -1,4 +1,4 @@
-package kr.adapterz.jpa_practice.service;
+package kr.adapterz.jpa_practice.security;
 
 import kr.adapterz.jpa_practice.entity.User;
 import org.springframework.security.core.GrantedAuthority;

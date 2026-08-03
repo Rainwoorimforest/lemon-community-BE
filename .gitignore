@@ -48,3 +48,5 @@ application-prod.properties
 *.keystore
 *credentials*
 docker-compose.yml
+
+/cookies.txt
