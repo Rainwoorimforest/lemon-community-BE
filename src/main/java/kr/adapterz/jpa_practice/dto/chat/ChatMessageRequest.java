@@ -10,9 +10,6 @@ import lombok.NoArgsConstructor;
 public class ChatMessageRequest {
 
     @NotBlank
-    private String sender; // TODO: 추후에 jwt 토큰 넣을거라 삭제하기
-
-    @NotBlank
     private String message;
 
 }

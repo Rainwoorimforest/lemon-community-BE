@@ -1,6 +1,9 @@
 package kr.adapterz.jpa_practice.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.validation.constraints.Positive;
+import kr.adapterz.jpa_practice.dto.chat.ChatRoomResponseDto;
 import kr.adapterz.jpa_practice.dto.post.*;
 import kr.adapterz.jpa_practice.dto.user.UserResponseDto;
 import kr.adapterz.jpa_practice.entity.*;
@@ -12,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import kr.adapterz.jpa_practice.security.CustomUserDetails;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,11 +32,16 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final LikeRepository likeRepository;
     private final PostViewHistoryRepository postViewHistoryRepository;
+    private final ChatRoomService chatRoomService;
+    private final S3Service s3Service;
+
+    @PersistenceContext
+    private EntityManager em;
 
     @Transactional
-    public PostResponseDto createPost(Long userId, PostRequestDto request) {
+    public PostResponseDto createPost(Long userId, CustomUserDetails userDetails, PostRequestDto request, MultipartFile file) {
 
-        User author = userRepository.findById(userId)
+        User author = userRepository.findById(userDetails.getUserId())
                 .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
 
         Post post = new Post(
@@ -43,15 +52,12 @@ public class PostService {
 
         PostInfo postInfo = new PostInfo(post);
 
-        // 게시글에 이미지를 첨부하였을 경우
-        if(!request.getImages().isEmpty()) {
-            for (String url: request.getImages())
-            {
-                if(url != null) post.addPostImage(url);
-            }
-        }
+        uploadAndLinkImage(file, post);
 
         Post savedPost = postRepository.save(post);
+        em.flush();
+
+        chatRoomService.createChatRoom(author, post, request.getChatRoom());
 
         return new PostResponseDto(savedPost);
     }
@@ -63,8 +69,6 @@ public class PostService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
-
-        // 채팅방 여부
 
 
         // 조회수
@@ -172,5 +176,11 @@ public class PostService {
         }
 
         postRepository.delete(post);
+    }
+
+    private void uploadAndLinkImage(MultipartFile file, Post post) {
+        if (file == null || file.isEmpty()) return;
+        String imageUrl = s3Service.uploadFile(file);
+        post.addPostImage(imageUrl);
     }
 }

@@ -1,6 +1,7 @@
 package kr.adapterz.jpa_practice.dto.post;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import kr.adapterz.jpa_practice.dto.chat.CreateChatRoomRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,3 +21,4 @@ public class PostRequestDto {
    private CreateChatRoomRequestDto chatRoom; // null이 들어올 수 있음
 
 }
+

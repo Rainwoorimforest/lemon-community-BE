@@ -1,7 +1,7 @@
 package kr.adapterz.jpa_practice.service;
 
 import kr.adapterz.jpa_practice.dto.chat.*;
-import kr.adapterz.jpa_practice.dto.chat.CreateChatRoomResponseDto;
+import kr.adapterz.jpa_practice.dto.chat.ChatRoomResponseDto;
 import kr.adapterz.jpa_practice.entity.Chat;
 import kr.adapterz.jpa_practice.entity.ChatRoom;
 import kr.adapterz.jpa_practice.entity.Post;
@@ -33,14 +33,14 @@ public class ChatRoomService {
     private final ChatRepository chatRepository;
 
     @Transactional
-    public CreateChatRoomResponseDto createChatRoom(CreateChatRoomRequestDto request, Long userId) {
+    public void createChatRoom(User host, Post post, CreateChatRoomRequestDto request) {
 
-        User host = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
+//        User host = userRepository.findById(userId)
+//                .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
 
 
-        Post post = postRepository.findById(request.getPostId())
-                .orElseThrow(() -> new NotFoundException("POST_NOT_FOUND"));
+//        Post post = postRepository.findById(request.getPostId())
+//                .orElseThrow(() -> new NotFoundException("POST_NOT_FOUND"));
 
 
         ChatRoom chatRoom = new ChatRoom( 
@@ -50,19 +50,22 @@ public class ChatRoomService {
                 request.getSummary()
         );
 
+
+        post.getChatRoom().add(chatRoom);
+
         chatRoomRepository.save(chatRoom);
 
-        return CreateChatRoomResponseDto.builder()
-                .roomId(chatRoom.getRoomId())
-                .title(chatRoom.getRoomTitle())
-                .summary(chatRoom.getRoomSummary())
-                .participant(chatRoom.getParticipantCount())
-                .build();
+//        return ChatRoomResponseDto.builder()
+//                .roomId(chatRoom.getRoomId())
+//                .title(chatRoom.getRoomTitle())
+//                .summary(chatRoom.getRoomSummary())
+//                .participant(chatRoom.getParticipantCount())
+//                .build();
 
     }
 
     @Transactional
-    public CreateChatRoomResponseDto createChatRoomNotice(Long roomId, ChatRoomNoticeRequestDto request, CustomUserDetails userDetails) {
+    public ChatRoomResponseDto createChatRoomNotice(Long roomId, ChatRoomNoticeRequestDto request, CustomUserDetails userDetails) {
 
         User host = userRepository.findById(userDetails.getUserId())
                 .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
@@ -80,18 +83,18 @@ public class ChatRoomService {
 
         chatRoom.assignNotice(request.getNotice());
 
-        return CreateChatRoomResponseDto.builder()
+        return ChatRoomResponseDto.builder()
                 .roomId(chatRoom.getRoomId())
                 .title(chatRoom.getRoomTitle())
                 .summary(chatRoom.getRoomSummary())
                 .notice(chatRoom.getRoomNotice())
-                .participant(chatRoom.getParticipant())
+                .participantCount(chatRoom.getParticipant())
                 .build();
 
     }
 
-    @Transactional //언제 readonly = true지?
-    public GetChatRoomResponseDto getChatRoom(Long roomId, CustomUserDetails userDetails) {
+    @Transactional
+    public ChatRoomResponseDto getChatRoom(Long roomId, CustomUserDetails userDetails) {
 
         User user = userRepository.findById(userDetails.getUserId())
                 .orElseThrow(() -> new NotFoundException("USER_ACCESS_DENIED"));
@@ -100,7 +103,7 @@ public class ChatRoomService {
                 .orElseThrow(() -> new NotFoundException("CHATROOM_NOT_FOUND"));
 
         // 채팅방 인원수 늘리기
-        chatRoom.countParticipant();
+        chatRoom.increaseParticipant();
 
         // 이전 채팅 내역 가져오기
         Pageable pageable = PageRequest.of(0, 30);
@@ -109,10 +112,66 @@ public class ChatRoomService {
         List<ChatMessageResponse> recentChats = chats.stream()
                 .map(chat -> new ChatMessageResponse(chat))
                 .collect(Collectors.toList());
-        return new GetChatRoomResponseDto(chatRoom, recentChats);
+        return new ChatRoomResponseDto(chatRoom, recentChats);
     }
 
+    @Transactional
+    public ChatRoomResponseDto updateChatRoom(Long roomId, UpdateChatRoomRequestDto request, CustomUserDetails userDetails) {
 
+        User user = userRepository.findById(userDetails.getUserId())
+                .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
+
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new NotFoundException("CHATROOM_NOT_FOUND"));
+
+
+        if(!userDetails.getUserId().equals(chatRoom.getHost().getUserId()))
+        {
+            throw new AccessDeniedException("USER_MISMATCH");
+        }
+
+        if(request.getTitle() != null)
+        {
+            chatRoom.updateRoomTitle(request.getTitle());
+        }
+
+        if(request.getSummary() != null)
+        {
+            chatRoom.updateRoomSummary(request.getSummary());
+        }
+
+        if(request.getNotice() != null)
+        {
+            chatRoom.assignNotice(request.getNotice());
+        }
+
+        return ChatRoomResponseDto.builder()
+                .roomId(chatRoom.getRoomId())
+                .title(chatRoom.getRoomTitle())
+                .summary(chatRoom.getRoomSummary())
+                .notice(chatRoom.getRoomNotice())
+                .participantCount(chatRoom.getParticipantCount())
+                .build();
+    }
+
+    @Transactional
+    public DeleteChatRoomResponseDto deleteChatRoom(Long roomId, CustomUserDetails userDetails) {
+
+        User user = userRepository.findById(userDetails.getUserId())
+                .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
+
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new NotFoundException("CHATROOM_NOT_FOUND"));
+
+        if(!userDetails.getUserId().equals(chatRoom.getHost().getUserId()))
+        {
+            throw new AccessDeniedException("USER_MISMATCH");
+        }
+
+        chatRoomRepository.delete(chatRoom);
+
+        return new DeleteChatRoomResponseDto(chatRoom);
+    }
 
 
 

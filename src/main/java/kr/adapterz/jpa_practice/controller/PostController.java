@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -49,10 +50,12 @@ public class PostController {
     @PostMapping("/users/{userId}")
     public ResponseEntity<ApiResponse<PostResponseDto>> createPost(
             @PathVariable Long userId,
-            @Valid @RequestBody PostRequestDto request
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestPart("request") PostRequestDto request,
+            @RequestPart(value = "file", required = false) MultipartFile file
     ) {
 
-        PostResponseDto result = postService.createPost(userId, request);
+        PostResponseDto result = postService.createPost(userId, userDetails, request, file);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .header("Location", "/posts/" + result.getPostId())

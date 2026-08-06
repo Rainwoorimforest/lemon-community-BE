@@ -24,6 +24,7 @@ public class PostResponseDto {
     private int likeCount; // 좋아요수
     private int commentCount; // 댓글수
     private int viewCount; // 조회수
+    private Long roomId;
 
     private List<CommentResponseDto> comments;
 
@@ -50,6 +51,13 @@ public class PostResponseDto {
         this.comments = post.getComments().stream()
                 .map(comment -> new CommentResponseDto(comment))
                 .collect(Collectors.toList());
+
+        // roomId 반환
+        if (post.getChatRoom() != null && !post.getChatRoom().isEmpty()) {
+            this.roomId = post.getChatRoom().getLast().getRoomId();
+        } else {
+            this.roomId = null;
+        }
 
     }
 }

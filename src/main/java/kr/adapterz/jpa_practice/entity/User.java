@@ -50,6 +50,9 @@ public class User {
     @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
     private List<Like> likes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "host", fetch = FetchType.LAZY)
+    private List<ChatRoom> chatRoom = new ArrayList<>();
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 

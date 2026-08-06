@@ -50,7 +50,7 @@ public class ChatRoom {
         this.host = user;
         this.roomTitle = roomTitle;
         this.roomSummary = roomSummary;
-        this.participantCount = 1;
+        this.participantCount = 0;
 
         this.createdAt = LocalDateTime.now();
     }
@@ -60,10 +60,22 @@ public class ChatRoom {
         this.roomNotice = notice;
     }
 
+    // 채팅방 제목 수정
+    public void updateRoomTitle(String title) {
+        this.roomTitle = title;
+    }
+
+    // 채팅방 소제목 수정
+    public void updateRoomSummary(String roomSummary) {
+        this.roomSummary = roomSummary;
+    }
+
     // 채팅방 인원수
-    public void countParticipant() {
+    public void increaseParticipant() {
         participantCount ++;
     }
+
+    public void decreaseParticipant() {participantCount --;}
 
     public int getParticipant() {
         return this.participantCount;

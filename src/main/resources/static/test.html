@@ -44,9 +44,12 @@
         }
 
         function connect() {
-            log('Connecting to ws://localhost:8080/ws ...');
+            // 접속 호스트 동적 감지
+            const host = window.location.host || 'localhost:8080';
+            const wsUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + host + '/ws';
+            log('Connecting to ' + wsUrl + ' ...');
             
-            const socket = new WebSocket('ws://localhost:8080/ws');
+            const socket = new WebSocket(wsUrl);
             stompClient = Stomp.over(socket);
             
             stompClient.connect({}, function (frame) {
@@ -70,13 +73,25 @@
 
             // 기존 구독이 있다면 해제
             if (subscription) {
-                subscription.unsubscribe();
+                try {
+                    subscription.unsubscribe();
+                } catch(e) {
+                    console.error('구독 해제 오류', e);
+                }
                 log('🧹 이전 구독 해제 완료');
             }
 
             const destination = '/subscribe/chat.' + roomId;
             subscription = stompClient.subscribe(destination, function (messageOutput) {
-                log('📨 [Received Message] 수신 완료: ' + messageOutput.body);
+                try {
+                    // 서버에서 보낸 JSON 응답 파싱
+                    const data = JSON.parse(messageOutput.body);
+                    const sender = data.senderNickname || '알 수 없음';
+                    const text = data.message || '';
+                    log('📨 [Received Message] ' + sender + ': ' + text);
+                } catch (e) {
+                    log('📨 [Received Message] 수신 완료: ' + messageOutput.body);
+                }
             });
             log('🔔 Subscribed to ' + destination + ' (채팅방 구독 완료)');
         }
@@ -91,8 +106,8 @@
             const sender = document.getElementById('sender').value;
             const messageText = document.getElementById('message').value;
 
-            if (!roomId || !sender || !messageText) {
-                log('⚠️ 채팅방 ID, 보낸이, 메시지 내용을 입력해주세요.');
+            if (!roomId || !messageText) {
+                log('⚠️ 채팅방 ID와 메시지 내용을 입력해주세요.');
                 return;
             }
 
@@ -107,10 +122,13 @@
         }
 
         function disconnect() {
-            if (stompClient !== null) {
-                stompClient.disconnect();
+            if (stompClient !== null && stompClient.connected) {
+                stompClient.disconnect(function() {
+                    log("🔌 Disconnected (연결 종료 완료)");
+                });
+            } else {
+                log("🔌 이미 연결이 종료되어 있습니다.");
             }
-            log("🔌 Disconnected (연결 종료 완료)");
         }
     </script>
 </body>

@@ -149,7 +149,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
 
-        user.delete();
+        user.delete(); // 소프트딜리트
 
         return new UserResponseDto(user);
     }

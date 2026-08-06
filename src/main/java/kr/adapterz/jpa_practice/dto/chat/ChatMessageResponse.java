@@ -1,6 +1,8 @@
 package kr.adapterz.jpa_practice.dto.chat;
 
 import kr.adapterz.jpa_practice.entity.Chat;
+import kr.adapterz.jpa_practice.entity.ChatRole;
+import kr.adapterz.jpa_practice.entity.MessageRole;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,21 +17,27 @@ public class ChatMessageResponse {
     private Long senderId;
     private String senderNickname;
 
+    private ChatRole chatRole;
+    private MessageRole messageRole;
+
     private LocalDateTime createdAt;
 
-    public ChatMessageResponse(Chat chat) { // TODO: 엔티티 구현시 연결
+    public ChatMessageResponse(Chat chat) {
         this.messageId = chat.getChatId();
-        this.senderId = chat.getUser() != null ? chat.getUser().getUserId() : null; // SYSTEM 메시지는 user가 null이므로 분기 처리
-        this.message = chat.getMessage();
-        this.createdAt = chat.getCreatedAt();
-    }
 
-    // MessageController에서 웹소켓 용도로 쓰기 위한 생성자 추가
-    public ChatMessageResponse(Long senderId, String senderNickname, String message) {
-        this.senderId = senderId;
-        this.senderNickname = senderNickname;
-        this.message = message;
-        this.createdAt = LocalDateTime.now();
+        // SYSTEM 메시지(user가 null)일 때를 위한 안전한 분기 처리
+        if (chat.getUser() != null) {
+            this.senderId = chat.getUser().getUserId();
+            this.senderNickname = chat.getUser().getNickname();
+        } else {
+            this.senderId = null;
+            this.senderNickname = "시스템"; // 프론트에서 보여줄 시스템 이름
+        }
+
+        this.message = chat.getMessage();
+        this.chatRole = chat.getChatRole();
+        this.messageRole = chat.getMessageRole();
+        this.createdAt = chat.getCreatedAt();
     }
 
 

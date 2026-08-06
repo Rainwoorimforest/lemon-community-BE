@@ -46,6 +46,9 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<PostImage> postImages = new ArrayList<>();
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<ChatRoom> chatRoom = new ArrayList<>();
+
     @Column(nullable = false, length = 10)
     private String nickname;
 
