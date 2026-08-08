@@ -57,15 +57,19 @@ jobs:
         AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
         AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
         AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ubuntu
         key: ${{ secrets.EC2_KEY }}
-        envs: AWS_ACCESS_KEY,AWS_SECRET_KEY,AWS_S3_BUCKET
+        envs: AWS_ACCESS_KEY,AWS_SECRET_KEY,AWS_S3_BUCKET,DB_PASSWORD,JWT_SECRET
         script: |
           cd ~/amumal-project
           echo "AWS_ACCESS_KEY=${AWS_ACCESS_KEY}" > .env
           echo "AWS_SECRET_KEY=${AWS_SECRET_KEY}" >> .env
           echo "AWS_S3_BUCKET=${AWS_S3_BUCKET}" >> .env
+          echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
+          echo "JWT_SECRET=${JWT_SECRET}" >> .env
           sudo docker-compose pull backend
           sudo docker-compose up -d backend
