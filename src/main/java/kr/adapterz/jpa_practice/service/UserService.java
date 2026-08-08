@@ -30,10 +30,8 @@ import kr.adapterz.jpa_practice.security.CustomUserDetails;
 @Transactional(readOnly = true)
 public class UserService {
     private final UserRepository userRepository;
-    private final JwtTokenProvider jwtTokenProvider; // 여기 접근제어자
-
-
-
+    private final JwtTokenProvider jwtTokenProvider;
+    
     @Transactional
     public UserResponseDto createUser(UserRequestDto request){
 
@@ -100,7 +98,9 @@ public class UserService {
         // 중복 닉네임 방지
         userRepository.findByNickname(request.getNickname())
                 .ifPresent(existingUser -> {
-                    throw new IllegalArgumentException("NiCKNAME_ALREADY_EXISTS");
+                    if (!existingUser.getUserId().equals(userId)) {
+                        throw new IllegalArgumentException("NiCKNAME_ALREADY_EXISTS");
+                    }
                 });
 
         user.changeProfileImage(request.getProfileImage());

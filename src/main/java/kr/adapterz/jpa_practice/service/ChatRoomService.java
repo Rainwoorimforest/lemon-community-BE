@@ -30,6 +30,9 @@ public class ChatRoomService {
 
     @Transactional
     public void createChatRoom(User host, Post post, CreateChatRoomRequestDto request) {
+        if (request == null) { // TODO: 이렇게 null 처리 안티패턴인지 물어보기
+            return;
+        }
 
 //        User host = userRepository.findById(userId)
 //                .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
