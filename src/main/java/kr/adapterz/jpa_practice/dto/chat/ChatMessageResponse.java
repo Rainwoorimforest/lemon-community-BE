@@ -16,6 +16,7 @@ public class ChatMessageResponse {
     private String message;
     private Long senderId;
     private String senderNickname;
+    private Long chatRoomId;
 
     private ChatRole chatRole;
     private MessageRole messageRole;
@@ -33,6 +34,8 @@ public class ChatMessageResponse {
             this.senderId = null;
             this.senderNickname = "시스템"; // 프론트에서 보여줄 시스템 이름
         }
+
+        this.chatRoomId = chat.getChatRoom().getRoomId();
 
         this.message = chat.getMessage();
         this.chatRole = chat.getChatRole();

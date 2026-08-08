@@ -30,7 +30,7 @@ import kr.adapterz.jpa_practice.security.CustomUserDetails;
 @Transactional(readOnly = true)
 public class UserService {
     private final UserRepository userRepository;
-    private final JwtTokenProvider jwtTokenProvider; // 여기 접근제어자 뭐야
+    private final JwtTokenProvider jwtTokenProvider; // 여기 접근제어자
 
 
 

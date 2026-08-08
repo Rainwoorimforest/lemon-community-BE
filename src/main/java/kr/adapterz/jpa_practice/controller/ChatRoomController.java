@@ -67,6 +67,19 @@ public class ChatRoomController {
     }
 
 
+    // GET 채팅방 참여자 명단 조회
+    @GetMapping("{chatRoomId}/participant")
+    public ResponseEntity<ApiResponse<GetparticipantListDto>> getParticipantList (
+            @PathVariable("chatRoomId") Long roomId
+    ){
+        GetparticipantListDto result = chatRoomService.getParticipantList(roomId);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.of("CHATROOM_RETURN_PARTICIPANTS", result));
+    }
+
+
     // PATCH 채팅방 수정하기
     @PatchMapping("/{chatRoomId}")
     public ResponseEntity<ApiResponse<ChatRoomResponseDto>> updateChatRoom(
@@ -95,6 +108,19 @@ public class ChatRoomController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.of("CHATROOM_DELETE", result));
+    }
+
+    // DELETE 채팅방 나가기 (방장 외 일반 유저용)
+    @DeleteMapping("/{chatRoomId}/leave")
+    public ResponseEntity<ApiResponse<Void>> leaveChatRoom(
+            @PathVariable("chatRoomId") Long roomId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        chatRoomService.leaveChatRoom(roomId, userDetails);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.of("CHATROOM_LEAVE", null));
     }
 
 }

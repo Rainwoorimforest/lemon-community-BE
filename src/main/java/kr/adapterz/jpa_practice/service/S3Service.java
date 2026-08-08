@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.core.sync.RequestBody;
 
 import java.io.IOException;
@@ -65,5 +66,22 @@ public class S3Service {
         String s3Url = "https://" + bucketName + ".s3." + awsRegion + ".amazonaws.com/" + key;
         log.info("File uploaded successfully to {}", s3Url);
         return s3Url;
+    }
+
+    public void deleteFile(String s3Url) {
+        if (s3Url == null || s3Url.isBlank()) return;
+        
+        try {
+            // URL 형식: https://bucketName.s3.region.amazonaws.com/key
+            String key = s3Url.substring(s3Url.lastIndexOf("/") + 1);
+            DeleteObjectRequest deleteReq = DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(key)
+                    .build();
+            s3Client.deleteObject(deleteReq);
+            log.info("Deleted file from S3: {}", key);
+        } catch (Exception e) {
+            log.error("Failed to delete file from S3: {}", s3Url, e);
+        }
     }
 }

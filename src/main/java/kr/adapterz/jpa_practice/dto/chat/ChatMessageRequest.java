@@ -10,6 +10,11 @@ import lombok.NoArgsConstructor;
 public class ChatMessageRequest {
 
     @NotBlank
+    private String messageId;
+
+    @NotBlank
     private String message;
+
+    private Long senderId; // 웹소켓 우회 등으로 Principal이 없을 때를 대비한 폴백용
 
 }

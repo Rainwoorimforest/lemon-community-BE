@@ -52,10 +52,10 @@ public class PostController {
             @PathVariable Long userId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestPart("request") PostRequestDto request,
-            @RequestPart(value = "file", required = false) MultipartFile file
+            @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
 
-        PostResponseDto result = postService.createPost(userId, userDetails, request, file);
+        PostResponseDto result = postService.createPost(userId, userDetails, request, files);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .header("Location", "/posts/" + result.getPostId())

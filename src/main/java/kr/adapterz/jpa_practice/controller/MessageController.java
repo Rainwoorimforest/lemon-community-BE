@@ -26,22 +26,47 @@ public class MessageController {
     private final MessageService messageService;
 
     @MessageMapping("/chat.{chatRoomId}") // 브로커에 전달될때: /publish/chat.{chatRoomId}
-    @SendTo("/subscribe/chat.{chatRoomId}") // 브로커가 구독자에게 전달할때(return): /publish/chat.{chatRoomId}
-    public ChatMessageResponse sendMessage(
+   // @SendTo("/subscribe/chat.{chatRoomId}") // 브로커가 구독자에게 전달할때(return): /publish/chat.{chatRoomId}
+    public void sendMessage(
             ChatMessageRequest request,
             @DestinationVariable Long chatRoomId,
-            // @AuthenticationPrincipal CustomUserDetails userDetails
             Principal principal
         ) {
 
         log.info("메시지 전송: {}", request.getMessage());
 
-        Authentication authentication = (Authentication) principal;
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long senderId;
+        if (principal != null) {
+            Authentication authentication = (Authentication) principal;
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            senderId = userDetails.getUserId();
+        } else {
+            senderId = request.getSenderId(); // 쿠키 누락 시 폴백
+        }
 
-        ChatMessageResponse response = messageService.saveMessage(request, chatRoomId, userDetails);
+        messageService.saveMessage(request, chatRoomId, senderId);
 
-        return response;
+    }
+
+    @MessageMapping("/chat.enter.{chatRoomId}") // 입장 시 호출될 경로
+    public void enterMessage(
+            ChatMessageRequest request,
+            @DestinationVariable Long chatRoomId,
+            Principal principal
+        ) {
+
+        log.info("입장 메시지 요청");
+
+        Long senderId;
+        if (principal != null) {
+            Authentication authentication = (Authentication) principal;
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            senderId = userDetails.getUserId();
+        } else {
+            senderId = request.getSenderId(); // 쿠키 누락 시 폴백
+        }
+
+        messageService.saveEnterMessage(request, chatRoomId, senderId);
     }
 
     @MessageExceptionHandler

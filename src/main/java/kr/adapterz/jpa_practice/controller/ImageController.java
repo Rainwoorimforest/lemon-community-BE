@@ -23,4 +23,6 @@ public class ImageController {
         String s3Url = s3Service.uploadFile(file);
         return ResponseEntity.ok(ApiResponse.of("IMAGE_UPLOAD_SUCCESS", s3Url));
     }
+
+    // 삭제하는 api controller를 안만들었네
 }
