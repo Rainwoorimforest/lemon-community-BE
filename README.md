@@ -5,22 +5,38 @@
 
 ## Back-end 소개
 
-- Java Spring Boot로 서버 구축하였습니다.
-- DB는 MySQL(기본 관계형 엔티티는 여기다 저장), Redis(레디스는 채팅 pub/sub으로 서비스확장을 고려, UUID 중복방어 멱등성 보장)
-- 개발은 초기 프로젝트 설정부터, db 생성 및 연결, 서버 연결, 프론트엔드 연결까지 직접 구현했습니다
-- mvc 패턴..?
-- AWS EC2 인스턴스 생성(S3, RDS) 도커컴포즈로 
+- **Spring Boot 서버 구축 및 MVC 패턴 적용**
+  Java Spring Boot를 이용해 백엔드 서버를 구축하고, `Controller - Service - Repository`로 이어지는 기본적인 MVC 구조를 적용함.
+  
+- **용도에 맞춘 DB 활용 (MySQL & Redis)**
+  - **MySQL**: 유저, 게시글, 댓글 등 애플리케이션의 주요 데이터를 저장.
+  - **Redis**: 채팅 기능에 Pub/Sub 메시지 브로커로 활용해 추후 서비스 확장을 고려함. 또한, 중복 요청 방어 및 멱등성 보장을 위해 UUID 캐싱 및 검증 로직을 구현함.
+
+- **기획부터 배포까지 1인 풀스택 개발**
+  초기 프로젝트 세팅부터 DB 설계, REST API 서버 개발, React 프론트엔드 연동까지 전 과정을 직접 구현함.
+
+- **Docker Compose를 활용한 인프라 배포**
+  AWS EC2 환경에서 Docker Compose를 사용해 프론트엔드, 백엔드, MySQL, Redis를 각각의 독립된 컨테이너로 배포함. 이미지 등 미디어 파일은 서버 용량 부하를 줄이기 위해 AWS S3와 연동함.
 
 ## 개발 인원 및 기간
 
 - 개발기간 : 2026-05-29 ~ 2026-08-09
 - 개발 인원 : 백엔드/프론트엔드 1명 (본인)
 
-## 사용 기술 및 Tools
-
-- Spring Boot MVC 패턴
-- Redis pub/sub, Websocket STOMP 이용한 채팅
-- AWS EC2+Docker로 배포. (도커에 3개인가 4개 컨테이너임 이건 너가 확인해줘. mysql, spring boot, react, + 아마 redis?)
+## 사용 기술 및 도구
+### BE
+- **Framework** : Java, Spring Boot, Spring Security, Spring Data JPA
+- **Architecture** : MVC Pattern, RESTful API
+- **Real-Time** : WebSocket (STOMP), Redis Pub/Sub
+### Database & Storage
+- **RDBMS** : MySQL 8.0
+- **NoSQL / Cache** : Redis
+- **Cloud Storage** : AWS S3
+### Infrastructure & DevOps
+- **Cloud Service** : AWS EC2
+- **Containerization** : Docker, Docker Compose
+  > 💡 **Docker 컨테이너 구성 (총 4개)**: 
+  > 전체 시스템은 `React(프론트엔드)`, `Spring Boot(백엔드)`, `MySQL(DB)`, `Redis(캐시 및 브로커)` 4개의 컨테이너로 완벽히 분리되어 구동됩니다.
 
 ## Front-end
 
@@ -94,9 +110,6 @@ flowchart TB
 
 ## ERD
 
-## 서버 설계
-
-(db mysql, springboot, redis, fe, docker 전체 구조 그림으로 구조도없나?)
 
 
 ### 서버 구조
