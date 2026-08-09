@@ -58,7 +58,7 @@
  ┣ 📜 build.gradle           # 의존성 라이브러리 및 빌드 관리 파일
  ┗ 📜 README.md
 ```
-</div>
+</details>
 
 
 ## 서버 설계
