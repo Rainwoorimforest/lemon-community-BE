@@ -60,6 +60,39 @@
 ```
 </details>
 
+## 시스템 아키텍처 (System Architecture)
+
+![시스템 아키텍처](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=Docker&logoColor=white) 
+전체 시스템은 **Docker Compose**를 통해 컨테이너화되어 배포 및 관리됩니다.
+
+```mermaid
+flowchart TB
+    User((User))
+
+    subgraph Docker ["🐳 Docker Compose Environment"]
+        direction TB
+        
+        FE["💻 Frontend\n(React)"]
+        BE["🍃 Backend\n(Spring Boot)"]
+        
+        subgraph DB ["Databases"]
+            MySQL[("🐬 MySQL\n(Data Storage)")]
+            Redis[("🔴 Redis\n(Cache & Pub/Sub)")]
+        end
+    end
+    
+    S3[("☁️ AWS S3\n(Image Storage)")]
+
+    User -- "1. 웹 페이지 요청 (Port 80)" --> FE
+    User -- "2. REST API / WebSocket (Port 8080)" --> BE
+    User -- "3. 이미지 조회" --> S3
+    
+    BE <--> |"JPA (데이터 CRUD)"| MySQL
+    BE <--> |"채팅 Pub/Sub 및 캐싱"| Redis
+    BE --> |"이미지 파일 업로드"| S3
+```
+
+## ERD
 
 ## 서버 설계
 
