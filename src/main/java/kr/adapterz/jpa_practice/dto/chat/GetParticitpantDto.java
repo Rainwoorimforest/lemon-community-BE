@@ -9,15 +9,16 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class GetParticitpantDto {
-    // 채팅방 개별 인원 프로필정보
-    // 닉네임, MessageRole
+
     private Long userId;
     private String nickname;
+    private String profileImg;
     private MessageRole messageRole;
 
     public GetParticitpantDto(ChatRoomParticipant chatRoomParticipant, boolean isHost) {
         this.userId = chatRoomParticipant.getUser().getUserId();
         this.nickname = chatRoomParticipant.getUser().getNickname();
+        this.profileImg = chatRoomParticipant.getUser().getProfileImage();
         this.messageRole = isHost ? MessageRole.HOST : MessageRole.GENERAL;
     }
 }

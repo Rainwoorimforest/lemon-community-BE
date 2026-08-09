@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @Getter
@@ -17,5 +18,5 @@ public class UserUpdateRequestDto {
     @Size(max = 10, message = "닉네임은 10자 이내여야 합니다.")
     private String nickname;
 
-    private String profileImage;
+    private MultipartFile profileImage;
 }

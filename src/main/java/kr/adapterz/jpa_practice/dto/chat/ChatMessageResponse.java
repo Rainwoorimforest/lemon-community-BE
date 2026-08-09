@@ -16,6 +16,7 @@ public class ChatMessageResponse {
     private String message;
     private Long senderId;
     private String senderNickname;
+    private String profileImg;
     private Long chatRoomId;
 
     private ChatRole chatRole;
@@ -30,9 +31,11 @@ public class ChatMessageResponse {
         if (chat.getUser() != null) {
             this.senderId = chat.getUser().getUserId();
             this.senderNickname = chat.getUser().getNickname();
+            this.profileImg = chat.getUser().getProfileImage();
         } else {
             this.senderId = null;
-            this.senderNickname = "시스템"; // 프론트에서 보여줄 시스템 이름
+            this.senderNickname = "시스템";
+            this.profileImg = null;
         }
 
         this.chatRoomId = chat.getChatRoom().getRoomId();

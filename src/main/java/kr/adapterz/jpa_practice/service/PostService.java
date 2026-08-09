@@ -134,14 +134,17 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("POST_NOT_FOUND"));
 
-        // 작성자 검증
+        User author = userRepository.findById(userDetails.getUserId())
+                .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
+
         if (!userDetails.getUserId().equals(post.getAuthor().getUserId())) {
             throw new AccessDeniedException("USER_MISMATCH");
         }
 
-        // 제목, 내용 업데이트할때 null 값 확인하는 코드 추가
         if (request.getTitle() != null) post.changeTitle(request.getTitle());
         if (request.getContent() != null) post.changeContent(request.getContent());
+
+        chatRoomService.createChatRoom(author, post, request.getChatRoom());
 
         return new PostUpdateResponseDto(post);
     }
@@ -158,8 +161,7 @@ public class PostService {
             throw new AccessDeniedException("USER_MISMATCH");
         }
 
-        // JPA의 CascadeType.ALL 설정 덕분에 
-        // postRepository.delete(post) 호출 시 댓글(comments)과 좋아요(likes)가 DB에서 자동 삭제됩니다.
+        // JPA의 CascadeType.ALL 설정으로  댓글(comments)과 좋아요(likes) 엔티티 수동 삭제하는 코드 제외함
 
         // AWS S3 서버에 저장된 원본 이미지 파일들 백그라운드 삭제
         if (post.getPostImages() != null) {
@@ -174,10 +176,8 @@ public class PostService {
     private void uploadAndLinkImages(List<MultipartFile> files, Post post) {
         if (files == null || files.isEmpty()) return;
         for (MultipartFile file : files) { // 10번이 최대
-            if (file != null && !file.isEmpty()) {
-                String imageUrl = s3Service.uploadFile(file);
-                post.addPostImage(imageUrl);
-            }
+            String imageUrl = s3Service.uploadFile(file);
+            post.addPostImage(imageUrl);
         }
     }
 }

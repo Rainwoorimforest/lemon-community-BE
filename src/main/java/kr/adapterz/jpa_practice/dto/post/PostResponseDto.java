@@ -21,6 +21,7 @@ public class PostResponseDto {
     private List<String> images;
     private Long authorId;
     private String nickname;
+    private String authorProfileImg;
     private int likeCount; // 좋아요수
     private int commentCount; // 댓글수
     private int viewCount; // 조회수
@@ -30,12 +31,12 @@ public class PostResponseDto {
 
     private LocalDateTime createdAt;
 
-
     public PostResponseDto(Post post) {
         this.postId = post.getPostId();
         this.title = post.getTitle();
         this.authorId = post.getAuthor().getUserId();
         this.nickname = post.getAuthor().getNickname();
+        this.authorProfileImg = post.getAuthor().getProfileImage();
         this.content = post.getContent();
 
         this.images = post.getPostImages().stream()

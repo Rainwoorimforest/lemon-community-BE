@@ -12,6 +12,9 @@ import kr.adapterz.jpa_practice.jwt.JwtFilter;
 import kr.adapterz.jpa_practice.jwt.JwtExceptionFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 
 @Configuration
 @EnableWebSecurity(debug = true)
@@ -22,6 +25,11 @@ public class SecurityConfig {
     private final JwtFilter jwtFilter;
     private final JwtExceptionFilter jwtExceptionFilter;
     private final CorsConfigurationSource corsConfigurationSource;
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -43,7 +51,7 @@ public class SecurityConfig {
                 // 권한 설정
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/users/signup", "/users/login", "/error", "/images/**").permitAll()
+                        .requestMatchers("/users/signup", "/users/login", "/error").permitAll()
                         .anyRequest().authenticated()
                 )
 

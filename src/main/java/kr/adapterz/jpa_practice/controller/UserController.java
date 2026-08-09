@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import kr.adapterz.jpa_practice.jwt.JwtCookieConstants;
+import org.springframework.web.multipart.MultipartFile;
 
 
 // @CrossOrigin(origins = "http://127.0.0.1:5500")
@@ -27,7 +28,7 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<CurrentUserResponseDto>> getCurrentUser(
-            @AuthenticationPrincipal CustomUserDetails userDetails // 이거는 컨트롤러 계층에서만?
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ){
         CurrentUserResponseDto result = userService.getCurrentUser(userDetails);
         return ResponseEntity.ok(
@@ -35,6 +36,7 @@ public class UserController {
         );
     }
 
+    // 회원정보 페이지 조회 시 유저 정보 반환
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserAllResponseDto>> getUser(
             @PathVariable Long userId
@@ -45,11 +47,23 @@ public class UserController {
         );
     }
 
+    // 프로필 이미지 가져오기
+    @GetMapping("/profileImage/{userId}")
+    public ResponseEntity<ApiResponse<ProfileImageResponseDto>> getProfileImg(
+            @PathVariable Long userId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        ProfileImageResponseDto result = userService.getProfileImg(userId, userDetails);
+
+        return ResponseEntity.ok(ApiResponse.of("USER_PROFILE_IMAGE_RETRIEVED", result));
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<UserResponseDto>> createUser (
-            @Valid @RequestBody UserRequestDto request
+            @Valid @RequestPart("request") UserRequestDto request,
+            @RequestPart(value = "file", required = false) MultipartFile file
     ) {
-        UserResponseDto result = userService.createUser(request);
+        UserResponseDto result = userService.createUser(request, file);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .header("Location", "/users/signup" + result.getUserId())
@@ -87,10 +101,10 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserUpdateResponseDto>> updateNicknameProfileImg(
             @PathVariable Long userId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @Valid @RequestBody UserUpdateRequestDto request
-
+            @Valid @RequestPart("request") UserUpdateRequestDto request,
+            @RequestPart(value = "file", required = false) MultipartFile file
     ) {
-        UserUpdateResponseDto result = userService.updateUserInfo(userId, userDetails, request);
+        UserUpdateResponseDto result = userService.updateUserInfo(userId, userDetails, request, file);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.of("NICKNAME_IMAGE_UPDATED", result));

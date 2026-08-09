@@ -97,6 +97,20 @@ public class ChatRoomController {
 
 
 
+    // PATCH 채팅방 공지사항 수정하기
+    @PatchMapping("/{chatRoomId}/notice")
+    public ResponseEntity<ApiResponse<ChatRoomResponseDto>> updateChatRoomNotice(
+        @PathVariable("chatRoomId") Long roomId,
+        @AuthenticationPrincipal CustomUserDetails userDetails,
+        @Valid @RequestBody UpdateChatRoomNoticeRequestDto request
+    ){
+        ChatRoomResponseDto result = chatRoomService.updateChatRoomNotice(roomId, request, userDetails);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.of("CHATROOM_NOTICE_UPDATE", result));
+    }
+
     // DELETE 채팅방 삭제하기
     @DeleteMapping("/{chatRoomId}")
     public ResponseEntity<ApiResponse<DeleteChatRoomResponseDto>> deleteChatRoom(

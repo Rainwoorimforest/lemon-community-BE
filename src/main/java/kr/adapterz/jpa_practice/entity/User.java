@@ -3,6 +3,7 @@ package kr.adapterz.jpa_practice.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter; // TODO: Setter는 직접적으로 사용하지말고 불러올땐 메소드에 의도가 보이도록 합시다.
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -87,7 +88,7 @@ public class User {
         this.nickname = nickname;
     }
 
-    public void changeProfileImage(String profileImage) {
+    public void uploadProfileImage(String profileImage) {
 
         this.profileImage = profileImage;
     }

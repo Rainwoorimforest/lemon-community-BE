@@ -20,12 +20,12 @@ public class AllPostsResponseDto {
     private String title;
     private Long authorId;
     private String nickname;
+    private String authorProfileImg;
 
     private int likeCount; // 좋아요수
     private int commentCount; // 댓글수
     private int viewCount; // 조회수
 
-    //작성시간(최초시간?)
     private LocalDateTime createdAt;
 
     public AllPostsResponseDto(Post post) { // 이거 List컬렉션으로 가지고와야지
@@ -33,6 +33,7 @@ public class AllPostsResponseDto {
         this.title = post.getTitle();
         this.authorId = post.getAuthor().getUserId();
         this.nickname = post.getAuthor().getNickname();
+        this.authorProfileImg = post.getAuthor().getProfileImage();
 
         this.likeCount = (post.getPostInfo() != null) ? post.getPostInfo().getLikeCount() : 0;
         this.commentCount = (post.getPostInfo() != null) ? post.getPostInfo().getCommentCount() : 0;

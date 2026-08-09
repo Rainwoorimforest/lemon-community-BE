@@ -71,7 +71,7 @@ public class PostController {
         PostUpdateResponseDto result = postService.updatePost(postId, userDetails, request);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.of("POST_UPDATED", result));
+                .body(ApiResponse.of("POST_AND_CHATROOM_UPDATED", result));
     }
 
     @DeleteMapping("/{postId}")

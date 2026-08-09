@@ -15,11 +15,13 @@ public class UserAllResponseDto { // 회원가입 시 DTO
     private Long userId;
     private String email;
     private String nickname;
+    private String profileImage;
 
 
     public UserAllResponseDto(User user) {
         this.userId = user.getUserId();
         this.email = user.getEmail();
         this.nickname = user.getNickname();
+        this.profileImage = user.getProfileImage();
     }
 }

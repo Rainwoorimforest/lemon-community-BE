@@ -19,8 +19,7 @@ public class CorsConfig {
 
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:5500",
-                "http://127.0.0.1:5500",
-                "chrome-extension://*"
+                "http://127.0.0.1:5500"
         ));
 
         config.addAllowedMethod("*");

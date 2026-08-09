@@ -69,8 +69,8 @@ public class ChatRoomService {
         User host = userRepository.findById(userDetails.getUserId())
                 .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
 
-        Post post = postRepository.findById(request.getPostId())
-                .orElseThrow(() -> new NotFoundException("POST_NOT_FOUND")); // 유저플로우 자체가 post 게시글 상세에서 채팅방생성하는 건데 이게 필요한 코드일까? 그래도 넣어야하나? 유저플로우를 믿지마라?
+        // Post post = postRepository.findById(request.getPostId())
+        //         .orElseThrow(() -> new NotFoundException("POST_NOT_FOUND")); // 유저플로우 자체가 post 게시글 상세에서 채팅방생성하는 건데 이게 필요한 코드일까? 그래도 넣어야하나? 유저플로우를 믿지마라?
 
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new NotFoundException("CHATROOM_NOT_FOUND"));
@@ -125,7 +125,7 @@ public class ChatRoomService {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new RuntimeException("CHATROOM_NOT_FOUND"));
         
-        Long hostId = chatRoom.getHost().getUserId();
+        Long hostId = chatRoom.getHost().getUserId(); //TODO: 방장이 탈퇴해도 소프트딜리트라 hostId는 가져올 수 있긴하다. 그럼 방장이 유령회원인데..
         
         List<ChatRoomParticipant> participantList = chatRoomParticipantRepository.findByChatRoom(chatRoom);
 
@@ -162,10 +162,29 @@ public class ChatRoomService {
             chatRoom.updateRoomSummary(request.getSummary());
         }
 
-        if(request.getNotice() != null)
-        {
-            chatRoom.assignNotice(request.getNotice());
+
+        return ChatRoomResponseDto.builder()
+                .roomId(chatRoom.getRoomId())
+                .title(chatRoom.getRoomTitle())
+                .summary(chatRoom.getRoomSummary())
+                .notice(chatRoom.getRoomNotice())
+                .participantCount(chatRoom.getParticipantCount())
+                .build();
+    }
+
+    @Transactional
+    public ChatRoomResponseDto updateChatRoomNotice(Long roomId, UpdateChatRoomNoticeRequestDto request, CustomUserDetails userDetails) {
+        User user = userRepository.findById(userDetails.getUserId())
+                .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
+
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new NotFoundException("CHATROOM_NOT_FOUND"));
+
+        if(!userDetails.getUserId().equals(chatRoom.getHost().getUserId())) {
+            throw new AccessDeniedException("USER_MISMATCH");
         }
+
+        chatRoom.assignNotice(request.getNotice());
 
         return ChatRoomResponseDto.builder()
                 .roomId(chatRoom.getRoomId())

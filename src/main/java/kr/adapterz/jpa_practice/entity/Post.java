@@ -43,7 +43,7 @@ public class Post {
     @OneToOne(mappedBy = "post", cascade = CascadeType.ALL)
     private PostInfo postInfo;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostImage> postImages = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -60,10 +60,6 @@ public class Post {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
-
-    // TODO: soft delete 구현
-//    @Column(name = "deleted_at")
-//    private LocalDateTime deletedAt;
 
     protected Post() {}
 

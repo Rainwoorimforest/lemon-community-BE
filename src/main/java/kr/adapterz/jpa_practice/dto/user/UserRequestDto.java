@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @NoArgsConstructor
@@ -41,5 +42,5 @@ public class UserRequestDto { // 회원가입 시 DTO
     private String nickname;
 
 
-    private String profileImage;
+    private MultipartFile profileImage;
 }

@@ -11,8 +11,8 @@ public class ChatRoomNoticeRequestDto {
 
     private String notice;
 
-    @NotNull
-    private Long postId;
+    // @NotNull
+    // private Long postId;
 
 }
 

@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 
+import kr.adapterz.jpa_practice.entity.Post;
 import kr.adapterz.jpa_practice.entity.UserRole;
 import kr.adapterz.jpa_practice.exception.AccessDeniedException;
 import kr.adapterz.jpa_practice.jwt.JwtTokenProvider;
@@ -18,10 +19,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.transaction.annotation.Transactional;
 import kr.adapterz.jpa_practice.security.CustomUserDetails;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 
 @Service
@@ -31,9 +36,11 @@ import kr.adapterz.jpa_practice.security.CustomUserDetails;
 public class UserService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    
+    private final S3Service s3Service;
+    private final PasswordEncoder passwordEncoder;
+
     @Transactional
-    public UserResponseDto createUser(UserRequestDto request){
+    public UserResponseDto createUser(UserRequestDto request, MultipartFile profileImgfile){
 
         // 비밀번호 확인 로직
         if (!request.getPassword().equals(request.getPasswordCheck())) {
@@ -53,12 +60,13 @@ public class UserService {
 
         User user = new User(
                 request.getEmail(),
-                request.getPassword(),
+                passwordEncoder.encode(request.getPassword()),
                 request.getNickname(),
-                request.getProfileImage(),
-                null // 아내가 일부러 null로 넣었어 아래에 set해줬거든 대신
+                null, // request.getProfileImage(),
+                null // 바로 아래 메소드로 대신 넣어줬음. user 엔티티가 만들어져야 다음 set함수가 동작하기 때문임.
         );
 
+        uploadAndLinkImages(profileImgfile, user);
         user.setUserRole(UserRole.USER);
 
         User savedUser = userRepository.save(user);
@@ -74,10 +82,20 @@ public class UserService {
         return new CurrentUserResponseDto(user);
     }
 
+
     public UserAllResponseDto getUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
+
         return new UserAllResponseDto(user);
+    }
+
+    public ProfileImageResponseDto getProfileImg(Long userId, CustomUserDetails userDetails) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
+
+        String profileImage = user.getProfileImage(); //TODO: null일수도있는데 optional로 보내야하나? dto에서 optional 안받잖아
+        return new ProfileImageResponseDto(profileImage);
     }
 
 
@@ -85,7 +103,8 @@ public class UserService {
     public UserUpdateResponseDto updateUserInfo(
             @Positive Long userId, // @Positive는 userId가 0보다 큰 값인지를 검증
             CustomUserDetails userDetails,
-            @Valid UserUpdateRequestDto request
+            @Valid UserUpdateRequestDto request,
+            MultipartFile profileImgfile
     ) {
 
         if (!userDetails.getUserId().equals(userId)) {
@@ -96,14 +115,14 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
 
         // 중복 닉네임 방지
-        userRepository.findByNickname(request.getNickname())
+        userRepository.findByNickname(request.getNickname()) // TODO: 프로필 이미지 null 확인과 본인 닉네임 확인 후 변경 코드가 Service에 잘 안보이도 하고 안정적이지 않아보임. 안티패턴인지 물어보기
                 .ifPresent(existingUser -> {
                     if (!existingUser.getUserId().equals(userId)) {
                         throw new IllegalArgumentException("NiCKNAME_ALREADY_EXISTS");
                     }
                 });
 
-        user.changeProfileImage(request.getProfileImage());
+        uploadAndLinkImages(profileImgfile, user);
         user.changeNickname(request.getNickname());
 
         //TODO: nickname은 반정규화. 동기화 시켜야줘야 한다.
@@ -130,7 +149,7 @@ public class UserService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
-        user.changePassword(request.getPassword());
+        user.changePassword(passwordEncoder.encode(request.getPassword()));
 
         return new UserResponseDto(user);
     }
@@ -160,7 +179,7 @@ public class UserService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
 
-        if (!user.getPassword().equals(request.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new PasswordMismatchException("PASSWORD_MISMATCH");
         }
 
@@ -182,5 +201,12 @@ public class UserService {
                     .userInfo(new UserResponseDto(user))
                     .build();
         }
+
+    private void uploadAndLinkImages(MultipartFile file, User user) {
+        if (file == null || file.isEmpty()) return;
+
+        String imageUrl = s3Service.uploadFile(file);
+        user.uploadProfileImage(imageUrl);
+    }
 
 }
