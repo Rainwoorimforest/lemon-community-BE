@@ -27,8 +27,6 @@
 - 
 
 ### 폴더 구조
-
-폴더 구조 보기/숨기기
 <details>
 <summary><b>📂 백엔드 폴더 구조 보기 (Spring Boot)</b></summary>
 <div markdown="1">
